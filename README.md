@@ -15,3 +15,9 @@ The DatabaseConn.java file provides functions to get and input data into the dat
 It requires two jar files added to the build path: 
   - jBCrypt-0.4.jar
   - sqlite-jdbc-3.21.0.jar
+
+Also change the database URL to the destination of the file:
+
+```
+private String url = "C:\\Users\\John\\eclipse-workspace\\capytec\\src\\capytec\\capytecDatabase.db";
+```
