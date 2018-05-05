@@ -8,7 +8,7 @@
 
 4	Provide various reports on task completion and allocation to interested parties.
 
-# DatabaseConn
+### DatabaseConn
 
 The DatabaseConn.java file provides functions to get and input data into the database.
 
