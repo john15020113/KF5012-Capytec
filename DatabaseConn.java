@@ -223,16 +223,20 @@ public class DatabaseConn {
 	 * endDate - End date of the new task
 	 * return - boolean value true if record was created and false if not created */
 	
-	public boolean createTask(String title, String desc, String startDate, String endDate) {
+	public boolean createTask(String title, String desc, String startDate, String endDate, int typeOfTask, int duration, int importance, int frequency) {
 		int result;
 		PreparedStatement stmt;
 		if (connect()) {
 			try {
-				stmt = connection.prepareStatement("INSERT INTO Tasks (Title, Description, StartDate, EndDate) VALUES (?, ?, ?, ?)");
+				stmt = connection.prepareStatement("INSERT INTO Tasks (Title, Description, StartDate, EndDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 				stmt.setString(1, title);
 				stmt.setString(2, desc);
 				stmt.setString(3, startDate);
 				stmt.setString(4, endDate);
+				stmt.setInt(5, typeOfTask);
+				stmt.setInt(6, duration);
+				stmt.setInt(7, importance);
+				stmt.setInt(8, frequency);
 				result = stmt.executeUpdate();
 				return true;
 			} catch (SQLException ex) {
@@ -250,14 +254,18 @@ public class DatabaseConn {
 	 * desc - Description of the new  daily task
 	 * return - boolean value true if record was created and false if not created */
 
-	public boolean createDailyTask(String title, String desc) {
+	public boolean createDailyTask(String title, String desc, int typeOfTask, int duration, int importance, int frequency) {
 		int result;
 		PreparedStatement stmt;
 		if (connect()) {
 			try {
-				stmt = connection.prepareStatement("INSERT INTO DailyTask (Title, Description) VALUES (?, ?)");
+				stmt = connection.prepareStatement("INSERT INTO DailyTask (Title, Description) VALUES (?, ?, ?, ?, ?, ?)");
 				stmt.setString(1, title);
 				stmt.setString(2, desc);
+				stmt.setInt(5, typeOfTask);
+				stmt.setInt(6, duration);
+				stmt.setInt(7, importance);
+				stmt.setInt(8, frequency);
 				result = stmt.executeUpdate();
 				return true;
 			} catch (SQLException ex) {
@@ -340,10 +348,10 @@ public class DatabaseConn {
 		String[] details = new String[1];
 		if (connect()) {
 			try {
-				stmt = connection.prepareStatement("SELECT IdTask, Title, Description, StartDate, EndDate FROM Tasks WHERE IdTask = ?");
+				stmt = connection.prepareStatement("SELECT IdTask, Title, Description, StartDate, EndDate, TypeOfTask, Duration, Importance, Frequency FROM Tasks WHERE IdTask = ?");
 				stmt.setInt(1, taskId);
 				result = stmt.executeQuery();
-				details = new String [] {result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5)};
+				details = new String [] {result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7), result.getString(8), result.getString(9)};
 				return details;
 			} catch (SQLException ex) {
 				System.err.println(ex.toString());
@@ -366,10 +374,10 @@ public class DatabaseConn {
 		String[] details = new String[1];
 		if (connect()) {
 			try {
-				stmt = connection.prepareStatement("SELECT IdDailyTask, Title, Description FROM DailyTask WHERE IdDailyTask = ?");
+				stmt = connection.prepareStatement("SELECT IdDailyTask, Title, Description, TypeOfTask, Duration, Importance, Frequency FROM DailyTask WHERE IdDailyTask = ?");
 				stmt.setInt(1, dailyTaskId);
 				result = stmt.executeQuery();
-				details = new String [] {result.getString(1), result.getString(2), result.getString(3)};
+				details = new String [] {result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7)};
 				return details;
 			} catch (SQLException ex) {
 				System.err.println(ex.toString());
