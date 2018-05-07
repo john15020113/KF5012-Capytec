@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -86,7 +88,7 @@ public class DatabaseConn {
 		int validUser = 0;
 		if (connect()) {
 			try {
-				stmt = connection.prepareStatement("SELECT IdStaff, Password FROM UserAccount WHERE Username = ?");
+				stmt = connection.prepareStatement("SELECT IdUserAccount, Password FROM UserAccount WHERE Username = ?");
 				stmt.setString(1, username);
 				result = stmt.executeQuery();
 				if (result.next()) {
@@ -95,12 +97,33 @@ public class DatabaseConn {
 					}
 				}
 			} catch (SQLException ex) {
-				
+				System.err.println(ex.toString());
 			} finally {
 				close();
 			}
 		}
 		return validUser;
+	}
+	
+	public boolean changePassword (int id, String password) {
+		int result;
+		PreparedStatement stmt;
+		if (connect()) {
+			try {
+				stmt = connection.prepareStatement("UPDATE UserAccount SET Password = ? WHERE IdUserAccount = ?");
+				stmt.setString(1, passwordHash(password));
+				stmt.setInt(2, id);
+				result = stmt.executeUpdate();
+				if (result == 1) {
+					return true;
+				}
+			} catch (SQLException ex) {
+				System.err.println(ex.toString());
+			} finally {
+				close();
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -129,6 +152,124 @@ public class DatabaseConn {
 		return userIsAdmin;
 	}
 	
+	// Gets all the staffs id with first and last names.
+	public String[] getAllStaff() {
+		ResultSet result;
+		String[] users = new String[1];
+		List<String> list = new ArrayList<String>();
+		PreparedStatement stmt;
+		if (connect()) {
+			try {
+				stmt = connection.prepareStatement("SELECT IdStaff, Firstname, LastName FROM Staff");
+				result = stmt.executeQuery();
+				while(result.next()) {
+					list.add(result.getString(1));
+					list.add(result.getString(2));
+					list.add(result.getString(3));
+				}
+				users = list.stream().toArray(String[]::new);
+			} catch (SQLException ex) {
+				System.err.println(ex.toString());
+			} finally {
+				close();
+			}
+		}
+		return users;
+	}
+	
+	// Gets all the account ids with username.
+	public String[] getAllAccounts() {
+		ResultSet result;
+		String[] accounts = new String[1];
+		List<String> list = new ArrayList<String>();
+		PreparedStatement stmt;
+		if (connect()) {
+			try {
+				stmt = connection.prepareStatement("SELECT IdUserAccount, Username FROM UserAccount");
+				result = stmt.executeQuery();
+				while(result.next()) {
+					list.add(result.getString(1));
+					list.add(result.getString(2));
+				}
+				accounts = list.stream().toArray(String[]::new);
+			} catch (SQLException ex) {
+				System.err.println(ex.toString());
+			} finally {
+				close();
+			}
+		}
+		return accounts;
+	}
+	
+	// Removes an account from the database
+	public boolean removeAccount(int id) {
+		int result;
+		PreparedStatement stmt;
+		if (connect()) {
+			try {
+				stmt = connection.prepareStatement("DELETE FROM UserAccount WHERE IdUserAccount = ?");
+				stmt.setInt(1, id);
+				result = stmt.executeUpdate();
+				if(result == 1) {
+					return true;
+				}
+			} catch (SQLException ex) {
+				System.err.println(ex.toString());
+			} finally {
+				close();
+			}
+		}
+		return false;
+	}
+	
+	// Removes a staff member from the database
+	public boolean removeStaff(int id) {
+		int result;
+		PreparedStatement stmt;
+		if (connect()) {
+			try {
+				stmt = connection.prepareStatement("DELETE FROM Staff WHERE IdStaff = ?");
+				stmt.setInt(1, id);
+				result = stmt.executeUpdate();
+				if(result == 1) {
+					return true;
+				}
+			} catch (SQLException ex) {
+				System.err.println(ex.toString());
+			} finally {
+				close();
+			}
+		}
+		return false;
+	}
+	
+	// Update a staff member in the database
+	public boolean changeStaffDetails(int id, String firstname, String lastname, String addr1, String addr2, String postcode, String contact) {
+		int result;
+		PreparedStatement stmt;
+		if (connect()) {
+			try {
+				stmt = connection.prepareStatement("UPDATE Staff SET Firstname = ?, Lastname = ?, AddressLine1 = ?, AddressLine2 = ?, Postcode = ?, ContactNumber = ? WHERE IdStaff = ?");
+				stmt.setString(1, firstname);
+				stmt.setString(2, lastname);
+				stmt.setString(3, addr1);
+				stmt.setString(4, addr2);
+				stmt.setString(5, postcode);
+				stmt.setString(6, contact);
+				stmt.setInt(7, id);
+				result = stmt.executeUpdate();
+				if(result == 1) {
+					return true;
+				}
+			} catch (SQLException ex) {
+				System.err.println(ex.toString());
+			} finally {
+				close();
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * getUserDetails() - Gets the user details from the database
 	 * id - The user id in the database
@@ -145,7 +286,7 @@ public class DatabaseConn {
 				result = stmt.executeQuery();
 				userDetails = new String [] {result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6)};
 			} catch (SQLException ex) {
-				
+				System.err.println(ex.toString());
 			} finally {
 				close();
 			}
@@ -178,7 +319,7 @@ public class DatabaseConn {
 				result = stmt.executeUpdate();
 				return true;
 			} catch (SQLException ex) {
-				
+				System.err.println(ex.toString());
 			} finally {
 				close();
 			}
@@ -207,7 +348,7 @@ public class DatabaseConn {
 				result = stmt.executeUpdate();
 				return true;
 			} catch (SQLException ex) {
-				
+				System.err.println(ex.toString());
 			} finally {
 				close();
 			}
